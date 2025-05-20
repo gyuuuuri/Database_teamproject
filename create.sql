@@ -19,9 +19,11 @@ create table UsedBook (
     primary key (used_book_id),
     foreign key (book_id) references Book (book_id)  
     ON UPDATE CASCADE
-    ON DELETE RESTRICT,
-    INDEX idx_usedbook_bookid (book_id)
+    ON DELETE RESTRICT
 );
+
+create index idx_usedbook_bookid
+  ON UsedBook (book_id);
 
 -- 3. User 테이블
 create table User (
@@ -46,10 +48,15 @@ create table Purchase (
     ON DELETE RESTRICT,
     foreign key (buyer_id) references User (user_id)
     ON UPDATE CASCADE
-    ON DELETE RESTRICT,
-    INDEX idx_purchase_usedbook (used_book_id),
-    INDEX idx_purchase_buyer     (buyer_id)
+    ON DELETE RESTRICT
 );
+
+create index idx_purchase_usedbook
+  ON Purchase (used_book_id);
+
+create index idx_purchase_buyer
+  ON Purchase (buyer_id);
+
 
 -- 5. Shipping 테이블
 create table Shipping (
@@ -63,5 +70,7 @@ create table Shipping (
     foreign key (purchase_id) references Purchase (purchase_id)
     ON UPDATE CASCADE
     ON DELETE RESTRIC
-    INDEX idx_shipping_purchase  (purchase_id),
 );
+
+create index idx_shipping_purchase
+  ON Shipping (purchase_id);
