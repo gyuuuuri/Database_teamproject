@@ -69,7 +69,7 @@ create table Shipping (
     primary key (shipping_id),
     foreign key (purchase_id) references Purchase (purchase_id)
     ON UPDATE CASCADE
-    ON DELETE RESTRIC
+    ON DELETE RESTRICT
 );
 
 create index idx_shipping_purchase
