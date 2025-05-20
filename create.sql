@@ -7,21 +7,21 @@ create table Book (
     isbn            VARCHAR(20)     UNIQUE,
     published_date  DATE,
     primary key (book_id)
-) 
+); 
 
 -- 2. UsedBook 테이블
 create table UsedBook (
     used_book_id    INT             NOT NULL AUTO_INCREMENT,
     book_id         INT             NOT NULL,
-    price           DECIMAL(10,2)   NOT NULL,
+    price           INT   NOT NULL,
     registered_date DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    status          ENUM('available','reserved','sold') NOT NULL DEFAULT 'available',
+    status          ENUM('판매중','예약중','판매완료') NOT NULL DEFAULT '판매중',
     primary key (used_book_id),
     foreign key (book_id) references Book (book_id)  
     ON UPDATE CASCADE
     ON DELETE RESTRICT,
-    INDEX idx_usedbook_bookid (book_id),
-) 
+    INDEX idx_usedbook_bookid (book_id)
+);
 
 -- 3. User 테이블
 create table User (
@@ -31,7 +31,7 @@ create table User (
     join_date   DATE            NOT NULL DEFAULT CURRENT_DATE,
     address     VARCHAR(255),
     primary key (user_id)
-) 
+);
 
 -- 4. Purchase 테이블
 create table Purchase (
@@ -39,7 +39,7 @@ create table Purchase (
     used_book_id   INT             NOT NULL,
     buyer_id       INT             NOT NULL,
     purchased_date DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    final_price    DECIMAL(10,2)   NOT NULL,
+    final_price    INT   NOT NULL,
     primary key (purchase_id),
     foreign key (used_book_id) references UsedBook (used_book_id)
     ON UPDATE CASCADE
@@ -48,8 +48,8 @@ create table Purchase (
     ON UPDATE CASCADE
     ON DELETE RESTRICT,
     INDEX idx_purchase_usedbook (used_book_id),
-    INDEX idx_purchase_buyer     (buyer_id),
-) 
+    INDEX idx_purchase_buyer     (buyer_id)
+);
 
 -- 5. Shipping 테이블
 create table Shipping (
@@ -58,10 +58,10 @@ create table Shipping (
     shipping_address VARCHAR(255)   NOT NULL,
     shipped_at      DATETIME,
     delivered_at    DATETIME,
-    shipping_status ENUM('pending','shipped','delivered','returned') NOT NULL DEFAULT 'pending',
+    shipping_status ENUM('배송준비중','배송중','배송완료') NOT NULL DEFAULT '배송준비중',
     primary key (shipping_id),
     foreign key (purchase_id) references Purchase (purchase_id)
     ON UPDATE CASCADE
     ON DELETE RESTRIC
     INDEX idx_shipping_purchase  (purchase_id),
-) 
+);
