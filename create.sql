@@ -5,7 +5,7 @@ create table Book (
     author          VARCHAR(100)    NOT NULL,
     publisher       VARCHAR(100),
     isbn            VARCHAR(20)     UNIQUE,
-    published_date  DATE,
+    published_date  YEAR,
     primary key (book_id)
 ); 
 
@@ -74,3 +74,19 @@ create table Shipping (
 
 create index idx_shipping_purchase
   ON Shipping (purchase_id);
+
+
+-- 뷰 정의: 사용자별 구매 내역
+create view user_purchase_history as
+    select
+        p.purchase_id,
+        p.buyer_id,
+        u.username,
+        p.purchased_date,
+        ub.used_book_id,
+        b.title       as book_title,
+        p.final_price
+    from Purchase p
+    join User u       on p.buyer_id     = u.user_id
+    join UsedBook ub  on p.used_book_id = ub.used_book_id
+    join Book b       on ub.book_id     = b.book_id;
