@@ -25,12 +25,12 @@ create table UsedBook (
 create index idx_usedbook_bookid
   ON UsedBook (book_id);
 
--- 3. User 테이블
-create table User (
+-- 3. Users 테이블
+create table Users (
     user_id     int             not null,
     username    varchar(50)     not null,
     email       varchar(100)    not null,
-    join_date   DATE            not null DEFAULT CURRENT_DATE,
+    join_date   DATETIME            not null DEFAULT CURRENT_TIMESTAMP,
     address     varchar(255),
     primary key (user_id)
 );
@@ -47,7 +47,7 @@ create table Purchase (
     foreign key (used_book_id) references UsedBook (used_book_id)
     on update cascade
     on delete restrict,
-    foreign key (buyer_id) references User (user_id)
+    foreign key (buyer_id) references Users (user_id)
     on update cascade
     on delete restrict
 );
@@ -88,6 +88,6 @@ create view user_purchase_history as
         b.title       as book_title,
         p.final_price
     from Purchase p
-    join User u       on p.buyer_id     = u.user_id
+    join Users u       on p.buyer_id     = u.user_id
     join UsedBook ub  on p.used_book_id = ub.used_book_id
     join Book b       on ub.book_id     = b.book_id;
