@@ -1,4 +1,5 @@
--- 1. Book 테이블
+use bookstore;
+
 create table Book (
     book_id         int             not null AUTO_INCREMENT,
     title           varchar(255)    not null,
@@ -9,12 +10,11 @@ create table Book (
     primary key (book_id)
 ); 
 
--- 2. UsedBook 테이블
 create table UsedBook (
     used_book_id    int             not null AUTO_INCREMENT,
     book_id         int             not null,
     price           int   not null,
-    registered_date DATETIME        not null DEFAULT CURRENT_TIMESTAMP,
+    registered_date DATETIME        not null DEFAULT (CURDATE()),
     status          ENUM('판매중','판매완료') not null DEFAULT '판매중',
     primary key (used_book_id),
     foreign key (book_id) references Book (book_id)  
@@ -25,22 +25,20 @@ create table UsedBook (
 create index idx_usedbook_bookid
   ON UsedBook (book_id);
 
--- 3. User 테이블
 create table User (
     user_id     int             not null,
     username    varchar(50)     not null,
     email       varchar(100)    not null,
-    join_date   DATE            not null DEFAULT CURRENT_DATE,
+    join_date   DATE            not null DEFAULT (CURDATE()),
     address     varchar(255),
     primary key (user_id)
 );
 
--- 4. Purchase 테이블
 create table Purchase (
     purchase_id    int             not null AUTO_INCREMENT,
     used_book_id   int             not null,
     buyer_id       int             not null,
-    purchased_date DATETIME        not null DEFAULT CURRENT_TIMESTAMP,
+    purchased_date DATETIME        not null DEFAULT (NOW()),
     final_price    int   not null,
     reward_points  int      AS (FLOOR(final_price * 0.01)) STORED,
     primary key (purchase_id),
@@ -59,7 +57,6 @@ create index idx_purchase_buyer
   on Purchase (buyer_id);
 
 
--- 5. Shipping 테이블
 create table Shipping (
     shipping_id     int             not null AUTO_INCREMENT,
     purchase_id     int             not null,
@@ -77,7 +74,6 @@ create index idx_shipping_purchase
   on Shipping (purchase_id);
 
 
--- 뷰 정의: 사용자별 구매 내역
 create view user_purchase_history as
     select
         p.purchase_id,
