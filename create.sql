@@ -30,8 +30,9 @@ create table Users (
     user_id     int             not null,
     username    varchar(50)     not null,
     email       varchar(100)    not null,
-    join_date   DATE            DATETIME not null DEFAULT CURRENT_TIMESTAMP,
+    join_date   DATETIME        not null DEFAULT CURRENT_TIMESTAMP,
     address     varchar(255),
+    point       int unsigned    not null DEFAULT 0,
     primary key (user_id)
 );
 
