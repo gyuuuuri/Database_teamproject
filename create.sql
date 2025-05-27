@@ -26,11 +26,11 @@ create index idx_usedbook_bookid
   ON UsedBook (book_id);
 
 -- 3. User 테이블
-create table User (
+create table Users (
     user_id     int             not null,
     username    varchar(50)     not null,
     email       varchar(100)    not null,
-    join_date   DATE            not null DEFAULT CURRENT_DATE,
+    join_date   DATE            DATETIME not null DEFAULT CURRENT_TIMESTAMP,
     address     varchar(255),
     primary key (user_id)
 );
