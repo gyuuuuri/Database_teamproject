@@ -119,7 +119,7 @@ INSERT INTO Book (book_id, title, author, publisher, isbn, published_date) VALUE
 INSERT INTO Book (book_id, title, author, publisher, isbn, published_date) VALUES (63, '바다가 들리는 편의점', '마치다 소노코', '바이포엠 스튜디오', '9791192579504', '2023');
 INSERT INTO Book (book_id, title, author, publisher, isbn, published_date) VALUES (64, '세계를 건너 너에게 갈게 :이꽃님 장편소설', '이꽃님', '문학동네', '9788954650212', '2018');
 INSERT INTO Book (book_id, title, author, publisher, isbn, published_date) VALUES (65, '낭만 강아지 봉봉', '홍민정', '다산북스', '9791130653433', '2022');
-INSERT INTO Book (book_id, title, author, publisher, isbn, published_date) VALUES (66, '놓지 마 과학!', '신태훈,나승훈', '위즈덤하우스', '9791171712267', '2016');
+INSERT INTO Book (book_id, title, author, publisher, isbn, published_date) VALUES (66, '놓지 마 과학!', '신태훈', '위즈덤하우스', '9791171712267', '2016');
 INSERT INTO Book (book_id, title, author, publisher, isbn, published_date) VALUES (67, '그대의 차가운 손:한강 장편소설', '한강', '문학과지성사', '9788932013046', '2002');
 INSERT INTO Book (book_id, title, author, publisher, isbn, published_date) VALUES (68, '허송세월 :김훈 산문', '김훈', '나남', '9788930041683', '2024');
 INSERT INTO Book (book_id, title, author, publisher, isbn, published_date) VALUES (69, '완전한 행복 :정유정 장편소설', '정유정', '은행나무', '9791167370280', '2021');
