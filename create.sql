@@ -44,7 +44,7 @@ create table Purchase (
     purchased_date DATETIME        not null DEFAULT CURRENT_TIMESTAMP,
     final_price    int   not null,
     reward_points  int      AS (FLOOR(final_price * 0.01)) STORED,
-    primary key (purchase_id),
+    primary key (purchase_id, used_book_id),
     foreign key (used_book_id) references UsedBook (used_book_id)
     on update cascade
     on delete restrict,
@@ -64,12 +64,13 @@ create index idx_purchase_buyer
 create table Shipping (
     shipping_id     int             not null AUTO_INCREMENT,
     purchase_id     int             not null,
+    used_book_id   int             not null,
     shipping_address varchar(255)   not null,
     shipped_at      DATETIME,
     delivered_at    DATETIME,
     shipping_status ENUM('배송준비중','배송중','배송완료') not null DEFAULT '배송준비중',
-    primary key (shipping_id),
-    foreign key (purchase_id) references Purchase (purchase_id)
+    primary key (shipping_id,purchase_id,used_book_id),
+    foreign key (purchase_id,used_book_id) references Purchase (purchase_id,used_book_id)
     on update cascade
     on delete restrict
 );
