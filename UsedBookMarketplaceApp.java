@@ -5,6 +5,8 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Scanner;
+import java.util.ArrayList; // ArrayList 추가
+import java.util.List; // List 추가
 
 public class UsedBookMarketplaceApp {
 
@@ -19,21 +21,47 @@ public class UsedBookMarketplaceApp {
         // 데이터베이스 연결 설정
         String dbHost = "localhost";
         String dbPort = "3306";
-        String dbName = "bookstore"; 
+        String dbName = "usedbook_db"; 
         String dbParams = "useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC";
         String dbUrl = "jdbc:mysql://" + dbHost + ":" + dbPort + "/" + dbName + "?" + dbParams;
 
         String dbUser = "root"; 
-        String dbPassword = "1234"; 
+        String dbPassword = "your_password"; 
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            // ResultSet을 스크롤 가능하게 설정 (TYPE_SCROLL_INSENSITIVE)
             conn = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
-            // conn = DriverManager.getConnection(dbUrl, dbUser, dbPassword,
-            //     java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
 
-            printAsciiArt(); // 아스키아트 출력
+            System.out.println("   ____________________________________________________");
+            System.out.println("  |____________________________________________________|");
+            System.out.println("  | __     __   ____   ___ ||  ____    ____     _  __  |");
+            System.out.println("  ||  |__ |--|_| || |_|   |||_|**|*|__|+|+||___| ||  | |");
+            System.out.println("  ||==|^^||--| |=||=| |=*=||| |~~|~|  |=|=|| | |~||==| |");
+            System.out.println("  ||  |##||  | | || | |JRO|||-|  | |==|+|+||-|-|~||__| |");
+            System.out.println("  ||__|__||__|_|_||_|_|___|||_|__|_|__|_|_||_|_|_||__|_|");
+            System.out.println("  ||_______________________||__________________________|");
+            System.out.println("  | _____________________  ||      __   __  _  __    _ |");
+            System.out.println("  ||=|=|=|=|=|=|=|=|=|=|=| __..\\/ |  |_|  ||#||==|  / /|");
+            System.out.println("  || | | | | | | | | | | |/\\ \\  \\\\|++|=|  || ||==| / / |");
+            System.out.println("  ||_|_|_|_|_|_|_|_|_|_|_/_/\\_.___\\__|_|__||_||__|/_/__|");
+            System.out.println("  |____________________ /\\~()/()~//\\ __________________|");
+            System.out.println("  | __   __    _  _     \\_  (_ .  _/ _    ___     _____|");
+            System.out.println("  ||~~|_|..|__| || |_ _   \\ //\\\\ /  |=|__|~|~|___| | | |");
+            System.out.println("  ||--|+|^^|==|1||2| | |__/\\ __ /\\__| |==|x|x|+|+|=|=|=|");
+            System.out.println("  ||__|_|__|__|_||_|_| /  \\ \\  / /  \\_|__|_|_|_|_|_|_|_|");
+            System.out.println("  |_________________ _/    \\/\\/\\/    \\_ _______________|");
+            System.out.println("  | _____   _   __  |/      \\../      \\|  __   __   ___|");
+            System.out.println("  ||_____|_| |_|##|_||   |   \\/ __|   ||_|==|_|++|_|-|||");
+            System.out.println("  ||______||=|#|--| |\\   \\   o    /   /| |  |~|  | | |||");
+            System.out.println("  ||______||_|_|__|_|_\\   \\  o   /   /_|_|__|_|__|_|_|||");
+            System.out.println("  |_________ __________\\___\\____/___/___________ ______|");
+            System.out.println("  |__    _  /    ________     ______           /| _ _ _|");
+            System.out.println("  |\\ \\  |=|/   //    /| //   /  /  / |        / ||%|%|%|");
+            System.out.println("  | \\/\\ |*/  .//____//.//   /__/__/ (_)      /  ||=|=|=|");
+            System.out.println("__|  \\/\\|/   /(____|/ //                    /  /||~|~|~|__");
+            System.out.println("  |___\\_/   /________//   ________         /  / ||_|_|_|");
+            System.out.println("  |___ /   (|________/   |\\_______\\       /  /| |______|");
+            System.out.println("      /                  \\|________)     /  / | |");
             System.out.println("=========================================");
             System.out.println("  중고 도서 마켓플레이스 프로그램에 오신 것을 환영합니다!  ");
             System.out.println("=========================================");
@@ -52,14 +80,14 @@ public class UsedBookMarketplaceApp {
                     default:
                         System.out.println("잘못된 메뉴 선택입니다. 다시 입력해주세요.");
                 }
-                System.out.println("\n=========================================\n");
+                System.out.println("\n=========================================\n"); 
             }
 
         } catch (ClassNotFoundException e) {
             System.err.println("오류: JDBC 드라이버를 찾을 수 없습니다. " + e.getMessage());
         } catch (SQLException e) {
             System.err.println("오류: 데이터베이스 연결 또는 쿼리 실행 중 문제가 발생했습니다. " + e.getMessage());
-            e.printStackTrace();
+            e.printStackTrace(); 
         } finally {
             try {
                 if (conn != null) {
@@ -75,40 +103,6 @@ public class UsedBookMarketplaceApp {
         }
     }
 
-    // 아스키아트 출력 메소드
-    private static void printAsciiArt() {
-        System.out.println("   ____________________________________________________");
-        System.out.println("  |____________________________________________________|");
-        System.out.println("  | __     __   ____   ___ ||  ____    ____     _  __  |");
-        System.out.println("  ||  |__ |--|_| || |_|   |||_|**|*|__|+|+||___| ||  | |");
-        System.out.println("  ||==|^^||--| |=||=| |=*=||| |~~|~|  |=|=|| | |~||==| |");
-        System.out.println("  ||  |##||  | | || | |JRO|||-|  | |==|+|+||-|-|~||__| |");
-        System.out.println("  ||__|__||__|_|_||_|_|___|||_|__|_|__|_|_||_|_|_||__|_|");
-        System.out.println("  ||_______________________||__________________________|");
-        System.out.println("  | _____________________  ||      __   __  _  __    _ |");
-        System.out.println("  ||=|=|=|=|=|=|=|=|=|=|=| __..\\/ |  |_|  ||#||==|  / /|");
-        System.out.println("  || | | | | | | | | | | |/\\ \\  \\\\|++|=|  || ||==| / / |");
-        System.out.println("  ||_|_|_|_|_|_|_|_|_|_|_/_/\\_.___\\__|_|__||_||__|/_/__|");
-        System.out.println("  |____________________ /\\~()/()~//\\ __________________|");
-        System.out.println("  | __   __    _  _     \\_  (_ .  _/ _    ___     _____|");
-        System.out.println("  ||~~|_|..|__| || |_ _   \\ //\\\\ /  |=|__|~|~|___| | | |");
-        System.out.println("  ||--|+|^^|==|1||2| | |__/\\ __ /\\__| |==|x|x|+|+|=|=|=|");
-        System.out.println("  ||__|_|__|__|_||_|_| /  \\ \\  / /  \\_|__|_|_|_|_|_|_|_|");
-        System.out.println("  |_________________ _/    \\/\\/\\/    \\_ _______________|");
-        System.out.println("  | _____   _   __  |/      \\../      \\|  __   __   ___|");
-        System.out.println("  ||_____|_| |_|##|_||   |   \\/ __|   ||_|==|_|++|_|-|||");
-        System.out.println("  ||______||=|#|--| |\\   \\   o    /   /| |  |~|  | | |||");
-        System.out.println("  ||______||_|_|__|_|_\\   \\  o   /   /_|_|__|_|__|_|_|||");
-        System.out.println("  |_________ __________\\___\\____/___/___________ ______|");
-        System.out.println("  |__    _  /    ________     ______           /| _ _ _|");
-        System.out.println("  |\\ \\  |=|/   //    /| //   /  /  / |        / ||%|%|%|");
-        System.out.println("  | \\/\\ |*/  .//____//.//   /__/__/ (_)      /  ||=|=|=|");
-        System.out.println("__|  \\/\\|/   /(____|/ //                    /  /||~|~|~|__");
-        System.out.println("  |___\\_/   /________//   ________         /  / ||_|_|_|");
-        System.out.println("  |___ /   (|________/   |\\_______\\       /  /| |______|");
-        System.out.println("      /                  \\|________)     /  / | |");
-    }
-
     // 메인 메뉴 출력
     private static void printMainMenu() {
         System.out.println("--- 메인 메뉴 ---");
@@ -121,7 +115,7 @@ public class UsedBookMarketplaceApp {
     private static int getUserChoice() {
         while (!scanner.hasNextInt()) {
             System.out.println("유효한 숫자를 입력해주세요.");
-            scanner.next();
+            scanner.next(); 
             System.out.print("메뉴를 선택하세요: ");
         }
         int choice = scanner.nextInt();
@@ -137,8 +131,8 @@ public class UsedBookMarketplaceApp {
             System.out.println("2. 도서 제목별 판매중 재고 요약 (GROUP BY, HAVING)");
             System.out.println("3. 평균 가격보다 비싼 판매중 도서 (SUBQUERY)");
             System.out.println("4. 평균 가격 초과 도서 일괄 할인 (UPDATE)");
-            System.out.println("5. 작가별 판매 및 재고 종합 분석 (판매 완료 기준 랭킹)");
-            System.out.println("6. 출판사별/출판년도별 판매중 재고 분석");
+            System.out.println("5. 작가별 판매 및 재고 종합 분석 (판매 완료 기준 랭킹)"); // 종합 분석
+            System.out.println("6. 출판사별/출판년도별 판매중 재고 PIVOT 분석 (OLAP: CASE 구문)"); // 새로운 PIVOT OLAP
             System.out.println("0. 이전 메뉴로 돌아가기");
             System.out.print("메뉴를 선택하세요: ");
 
@@ -154,24 +148,24 @@ public class UsedBookMarketplaceApp {
                     displayExpensiveStock(conn);
                     break;
                 case 4:
-                    updateBookPrice(conn);
+                    updateBookPrice(conn); 
                     break;
                 case 5:
                     displayAuthorSalesAndStockOverview(conn);
                     break;
-                case 6:
-                    displayPublisherPublishedYearPivot(conn);
+                case 6: // PIVOT OLAP 호출
+                    displayPublisherPublishedYearPivot(conn); 
                     break;
                 case 0:
-                    return;
+                    return; 
                 default:
                     System.out.println("잘못된 메뉴 선택입니다. 다시 입력해주세요.");
             }
-            System.out.println("\n------------------------------------\n");
+            System.out.println("\n------------------------------------\n"); 
         }
     }
 
-    // 도서 제목별 판매중 재고 현황 (기본 조회, 개수)
+    // 도서 제목별 판매중 재고 현황 (기본 조회, 개수) - 재고 0권 포함
     private static void displayStockCountByTitle(Connection conn) throws SQLException {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -182,14 +176,12 @@ public class UsedBookMarketplaceApp {
                     b.title AS book_title,
                     b.author,
                     b.publisher,
-                    COUNT(ub.used_book_id) AS available_stock_count,
-                    SUM(ub.price) AS total_stock_amount_current_price
+                    COALESCE(COUNT(ub.used_book_id), 0) AS available_stock_count, -- 재고 0권 포함
+                    COALESCE(SUM(ub.price), 0) AS total_stock_amount_current_price -- 재고 0권 포함
                 FROM
-                    UsedBook ub
-                JOIN
-                    Book b ON ub.book_id = b.book_id
-                WHERE
-                    ub.status = '판매중'
+                    Book b
+                LEFT JOIN -- LEFT JOIN으로 변경하여 모든 Book을 포함
+                    UsedBook ub ON b.book_id = ub.book_id AND ub.status = '판매중' -- '판매중' 조건은 JOIN 조건으로
                 GROUP BY
                     b.book_id, b.title, b.author, b.publisher
                 ORDER BY
@@ -214,7 +206,7 @@ public class UsedBookMarketplaceApp {
                 SELECT
                     b.title AS book_title,
                     COUNT(ub.used_book_id) AS available_stock_count,
-                    SUM(ub.price) AS total_available_stock_amount
+                    SUM(ub.price) AS total_available_stock_amount 
                 FROM
                     UsedBook ub
                 JOIN
@@ -267,6 +259,8 @@ public class UsedBookMarketplaceApp {
     private static void updateBookPrice(Connection conn) throws SQLException {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
+        PreparedStatement selectAfterPstmt = null; // 할인 후 가격 조회를 위한 pstmt
+        ResultSet selectAfterRs = null; // 할인 후 가격 조회를 위한 rs
         try {
             System.out.println("\n--- 평균 가격 초과 도서 일괄 할인 ---");
 
@@ -279,7 +273,45 @@ public class UsedBookMarketplaceApp {
             """;
             pstmt = conn.prepareStatement(selectBeforeDiscountSql);
             rs = pstmt.executeQuery();
-            printResultSet(rs);
+            
+            // 할인 대상 도서 ID들을 저장
+            List<Integer> eligibleBookIds = new ArrayList<>();
+            while(rs.next()) {
+                eligibleBookIds.add(rs.getInt("used_book_id"));
+            }
+            // rs는 이미 끝까지 읽었으므로 닫고, printResultSet을 위해 다시 열 필요 없음
+            if (rs != null) { try { rs.close(); } catch (SQLException e) { System.err.println("ResultSet 닫기 오류: " + e.getMessage()); } rs = null; }
+            if (pstmt != null) { try { pstmt.close(); } catch (SQLException e) { System.err.println("PreparedStatement 닫기 오류: " + e.getMessage()); } pstmt = null; }
+
+            // 할인 대상 도서 목록 (할인 전 가격)을 다시 조회하여 출력
+            // 이전에 읽었던 eligibleBookIds를 사용하여 다시 조회
+            if (!eligibleBookIds.isEmpty()) {
+                StringBuilder inClause = new StringBuilder();
+                inClause.append("(");
+                for (int i = 0; i < eligibleBookIds.size(); i++) {
+                    inClause.append(eligibleBookIds.get(i));
+                    if (i < eligibleBookIds.size() - 1) {
+                        inClause.append(",");
+                    }
+                }
+                inClause.append(")");
+
+                String selectBeforePrintSql = """
+                    SELECT ub.used_book_id, b.title, ub.price
+                    FROM UsedBook ub
+                    JOIN Book b ON ub.book_id = b.book_id
+                    WHERE ub.used_book_id IN """ + inClause.toString() + """;
+                    """;
+                pstmt = conn.prepareStatement(selectBeforePrintSql);
+                rs = pstmt.executeQuery();
+                printResultSet(rs); // 할인 전 가격 목록 출력
+                // rs는 printResultSet 내부에서 닫히므로 여기서는 닫지 않음.
+                // pstmt는 finally에서 닫힘.
+            } else {
+                System.out.println("할인 대상 도서가 없습니다.");
+                return; // 할인 대상이 없으면 종료
+            }
+
 
             System.out.print("적용할 할인율 (예: 10% 할인은 0.1 입력, 취소하려면 0 입력): ");
             double discountRate = scanner.nextDouble();
@@ -312,9 +344,37 @@ public class UsedBookMarketplaceApp {
             pstmt.setDouble(1, (1 - discountRate));
             int rowsAffected = pstmt.executeUpdate();
             System.out.println(rowsAffected + "개 도서의 가격이 할인되었습니다.");
+
+            // 할인 적용 후, 해당 도서들의 새로운 가격을 조회하여 출력
+            if (rowsAffected > 0 && !eligibleBookIds.isEmpty()) {
+                System.out.println("\n--- 할인 적용 후 가격 (할인된 도서들) ---");
+                StringBuilder inClauseAfter = new StringBuilder();
+                inClauseAfter.append("(");
+                for (int i = 0; i < eligibleBookIds.size(); i++) {
+                    inClauseAfter.append(eligibleBookIds.get(i));
+                    if (i < eligibleBookIds.size() - 1) {
+                        inClauseAfter.append(",");
+                    }
+                }
+                inClauseAfter.append(")");
+
+                String selectAfterDiscountSql = """
+                    SELECT ub.used_book_id, b.title, ub.price
+                    FROM UsedBook ub
+                    JOIN Book b ON ub.book_id = b.book_id
+                    WHERE ub.used_book_id IN """ + inClauseAfter.toString() + """;
+                    """;
+                selectAfterPstmt = conn.prepareStatement(selectAfterDiscountSql); // 새로운 pstmt
+                selectAfterRs = selectAfterPstmt.executeQuery(); // 새로운 rs
+                printResultSet(selectAfterRs); // 할인 후 가격 목록 출력
+            }
+
         } finally {
+            // 모든 자원 닫기
             if (rs != null) try { rs.close(); } catch (SQLException e) { System.err.println("ResultSet 닫기 오류: " + e.getMessage()); }
             if (pstmt != null) try { pstmt.close(); } catch (SQLException e) { System.err.println("PreparedStatement 닫기 오류: " + e.getMessage()); }
+            if (selectAfterRs != null) try { selectAfterRs.close(); } catch (SQLException e) { System.err.println("ResultSet 닫기 오류: " + e.getMessage()); }
+            if (selectAfterPstmt != null) try { selectAfterPstmt.close(); } catch (SQLException e) { System.err.println("PreparedStatement 닫기 오류: " + e.getMessage()); }
         }
     }
 
@@ -328,14 +388,16 @@ public class UsedBookMarketplaceApp {
                 SELECT
                     AuthorSales.author_name,
                     AuthorSales.total_sales_count,
+                    AuthorSales.total_sales_amount, -- 총 판매 금액 합계 추가
                     COALESCE(AuthorStock.total_current_stock_amount, 0) AS total_current_stock_amount,
                     COALESCE(AuthorStock.current_stock_count, 0) AS current_stock_count,
                     RANK() OVER (ORDER BY AuthorSales.total_sales_count DESC) AS sales_rank
                 FROM
-                    ( -- 작가별 총 판매 건수
+                    ( -- 작가별 총 판매 건수 및 총 판매 금액 합계
                         SELECT
                             b.author AS author_name,
-                            COUNT(p.purchase_id) AS total_sales_count
+                            COUNT(p.purchase_id) AS total_sales_count,
+                            SUM(p.final_price) AS total_sales_amount -- 총 판매 금액 합계
                         FROM
                             Purchase p
                         JOIN
@@ -372,12 +434,12 @@ public class UsedBookMarketplaceApp {
         }
     }
 
-    // 출판사별/출판년도별 판매중 재고 분석
+    // 출판사별/출판년도별 판매중 재고 PIVOT 분석 (OLAP: CASE 구문)
     private static void displayPublisherPublishedYearPivot(Connection conn) throws SQLException {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            System.out.println("\n--- 출판사별/출판년도별 판매중 재고 분석 ---");
+            System.out.println("\n--- 출판사별/출판년도별 판매중 재고 PIVOT 분석 (OLAP: CASE 구문) ---");
             String pivotSql = """
                 SELECT
                     b.publisher,
@@ -411,7 +473,6 @@ public class UsedBookMarketplaceApp {
 
     // ResultSet을 콘솔에 깔끔하게 출력하는 헬퍼 메소드
     private static void printResultSet(ResultSet rs) throws SQLException {
-
         // ResultSet이 비어있는지 확인
         if (!rs.next()) { // 첫 행으로 이동 시도, 데이터가 없으면 false 반환
             System.out.println("조회된 결과가 없습니다.");
@@ -422,47 +483,77 @@ public class UsedBookMarketplaceApp {
         ResultSetMetaData metaData = rs.getMetaData();
         int columnCount = metaData.getColumnCount();
 
-        // 고정된 컬럼 너비 설정 (조정 가능)
-        int defaultColumnWidth = 30; // 기본
-        int maxColumnWidth = 30; // 최대
+        // 각 컬럼의 실제 데이터 길이를 저장할 리스트
+        List<String[]> rows = new ArrayList<>();
+        // 첫 행은 이미 rs.next()로 읽었으므로 추가
+        do {
+            String[] rowData = new String[columnCount + 1]; // 1-based index
+            for (int i = 1; i <= columnCount; i++) {
+                Object value = rs.getObject(i);
+                rowData[i] = (value != null) ? value.toString() : "NULL";
+            }
+            rows.add(rowData);
+        } while (rs.next()); // 나머지 행 읽기
+
+        // 각 컬럼의 최종 너비를 저장할 배열 (최소 너비, 최대 너비 설정)
+        int[] columnWidths = new int[columnCount + 1];
+
+        // 컬럼별 너비 설정 상수 (조정 가능)
+        final int MIN_COL_WIDTH = 15; // 최소 컬럼 너비
+        final int MAX_COL_WIDTH_TITLE = 40; // 'book_title'의 최대 너비
+        final int MAX_COL_WIDTH_GENERAL = 25; // 일반 컬럼의 최대 너비
+
+
+        // 헤더 너비 초기화 및 데이터 최대 길이 파악
+        for (int i = 1; i <= columnCount; i++) {
+            String label = metaData.getColumnLabel(i);
+            int currentCalculatedWidth = 0;
+
+            // 컬럼 라벨에 따라 최대 너비 설정
+            if ("book_title".equalsIgnoreCase(label) || "title".equalsIgnoreCase(label)) { // 제목 컬럼
+                currentCalculatedWidth = MAX_COL_WIDTH_TITLE;
+            } else { // 기타 컬럼
+                currentCalculatedWidth = MAX_COL_WIDTH_GENERAL;
+            }
+            
+            // 헤더 길이와 최소 너비 중 큰 값으로 초기화
+            columnWidths[i] = Math.max(label.length(), MIN_COL_WIDTH);
+            // 계산된 최대 너비와 실제 데이터 길이 중 작은 값으로 최종 너비 결정
+            columnWidths[i] = Math.min(columnWidths[i], currentCalculatedWidth);
+
+
+            for (String[] rowData : rows) {
+                String cellValue = rowData[i];
+                columnWidths[i] = Math.min(Math.max(columnWidths[i], cellValue.length()), currentCalculatedWidth);
+            }
+        }
 
         // 헤더 출력
         for (int i = 1; i <= columnCount; i++) {
-            String label = metaData.getColumnLabel(i);
-            // 헤더 길이를 고려하여 최소 너비 확보, 최대 너비 제한
-            int currentWidth = Math.min(Math.max(label.length(), defaultColumnWidth), maxColumnWidth);
-            System.out.print(String.format("%-" + currentWidth + "s ", label));
+            System.out.print(String.format("%-" + columnWidths[i] + "s ", metaData.getColumnLabel(i)));
         }
         System.out.println();
 
         // 구분선 출력
         for (int i = 1; i <= columnCount; i++) {
-            String label = metaData.getColumnLabel(i);
-            int currentWidth = Math.min(Math.max(label.length(), defaultColumnWidth), maxColumnWidth);
-            for (int j = 0; j < currentWidth; j++) {
+            for (int j = 0; j < columnWidths[i]; j++) {
                 System.out.print("-");
             }
             System.out.print(" "); // 컬럼 간 공백
         }
         System.out.println();
 
-        // 데이터 출력 (첫 행은 이미 rs.next()로 읽었으므로 먼저 출력)
-        do { // do-while 루프를 사용하여 첫 행부터 처리
+        // 데이터 출력
+        for (String[] rowData : rows) {
             for (int i = 1; i <= columnCount; i++) {
-                Object value = rs.getObject(i);
-                String cellValue = (value != null) ? value.toString() : "NULL";
-
-                String label = metaData.getColumnLabel(i); // 해당 컬럼의 헤더를 다시 가져와 너비 계산
-                int currentWidth = Math.min(Math.max(label.length(), defaultColumnWidth), maxColumnWidth);
-
-                // 최대 너비를 초과하면 ...으로 자르기
-                if (cellValue.length() > currentWidth) {
-                    cellValue = cellValue.substring(0, currentWidth - 3) + "...";
+                String cellValue = rowData[i];
+                // 최종 너비를 초과하면 ...으로 자르기
+                if (cellValue.length() > columnWidths[i]) {
+                    cellValue = cellValue.substring(0, columnWidths[i] - 3) + "...";
                 }
-                System.out.print(String.format("%-" + currentWidth + "s ", cellValue));
+                System.out.print(String.format("%-" + columnWidths[i] + "s ", cellValue));
             }
             System.out.println();
-        } while (rs.next()); // 다음 행이 있으면 계속
+        }
     }
 }
-
