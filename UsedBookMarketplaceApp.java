@@ -21,12 +21,12 @@ public class UsedBookMarketplaceApp {
         // 데이터베이스 연결 설정
         String dbHost = "localhost";
         String dbPort = "3306";
-        String dbName = "usedbook_db"; 
+        String dbName = "bookstorea"; 
         String dbParams = "useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC";
         String dbUrl = "jdbc:mysql://" + dbHost + ":" + dbPort + "/" + dbName + "?" + dbParams;
 
         String dbUser = "root"; 
-        String dbPassword = "your_password"; 
+        String dbPassword = "1234"; 
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -127,12 +127,13 @@ public class UsedBookMarketplaceApp {
     private static void inquireStock(Connection conn) throws SQLException {
         while (true) { // 재고 조회 메뉴 루프
             System.out.println("\n--- 재고 관리 메뉴 ---");
-            System.out.println("1. 도서 제목별 판매중 재고 현황 (기본 조회, 개수)");
-            System.out.println("2. 도서 제목별 판매중 재고 요약 (GROUP BY, HAVING)");
-            System.out.println("3. 평균 가격보다 비싼 판매중 도서 (SUBQUERY)");
-            System.out.println("4. 평균 가격 초과 도서 일괄 할인 (UPDATE)");
-            System.out.println("5. 작가별 판매 및 재고 종합 분석 (판매 완료 기준 랭킹)"); // 종합 분석
-            System.out.println("6. 출판사별/출판년도별 판매중 재고 PIVOT 분석 (OLAP: CASE 구문)"); // 새로운 PIVOT OLAP
+            System.out.println("1. 도서별 재고 현황");
+            System.out.println("2. 도서별 판매중 재고 요약");
+            System.out.println("3. 평균 가격보다 비싼 판매 도서");
+            System.out.println("4. 평균 가격 초과 도서 일괄 할인");
+            System.out.println("5. 작가별 누적 판매 및 재고 종합 분석");
+            System.out.println("6. 출판사별/출판년도별 누적 판매 분석"); 
+            System.out.println("7. 도서 검색 (작가/제목)");
             System.out.println("0. 이전 메뉴로 돌아가기");
             System.out.print("메뉴를 선택하세요: ");
 
@@ -153,8 +154,11 @@ public class UsedBookMarketplaceApp {
                 case 5:
                     displayAuthorSalesAndStockOverview(conn);
                     break;
-                case 6: // PIVOT OLAP 호출
+                case 6:
                     displayPublisherPublishedYearPivot(conn); 
+                    break;
+                case 7: // 도서 검색 기능 호출
+                    searchBooksByAuthorOrTitle(conn);
                     break;
                 case 0:
                     return; 
@@ -165,23 +169,23 @@ public class UsedBookMarketplaceApp {
         }
     }
 
-    // 도서 제목별 판매중 재고 현황 (기본 조회, 개수) - 재고 0권 포함
+    // 도서별 재고 현황 (기본 조회, 개수) - 재고 0권 포함
     private static void displayStockCountByTitle(Connection conn) throws SQLException {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            System.out.println("\n--- 도서 제목별 판매중 재고 현황 ---");
+            System.out.println("\n--- 도서별 재고 현황 ---");
             String sql = """
                 SELECT
                     b.title AS book_title,
                     b.author,
                     b.publisher,
-                    COALESCE(COUNT(ub.used_book_id), 0) AS available_stock_count, -- 재고 0권 포함
-                    COALESCE(SUM(ub.price), 0) AS total_stock_amount_current_price -- 재고 0권 포함
+                    COALESCE(COUNT(ub.used_book_id), 0) AS available_stock_count,
+                    COALESCE(SUM(ub.price), 0) AS total_stock_amount_current_price 
                 FROM
                     Book b
-                LEFT JOIN -- LEFT JOIN으로 변경하여 모든 Book을 포함
-                    UsedBook ub ON b.book_id = ub.book_id AND ub.status = '판매중' -- '판매중' 조건은 JOIN 조건으로
+                LEFT JOIN 
+                    UsedBook ub ON b.book_id = ub.book_id AND ub.status = '판매중'
                 GROUP BY
                     b.book_id, b.title, b.author, b.publisher
                 ORDER BY
@@ -201,7 +205,7 @@ public class UsedBookMarketplaceApp {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            System.out.println("\n--- 도서 제목별 판매중 재고 요약 (재고 2권 이상) ---");
+            System.out.println("\n--- 도서별 판매중 재고 요약 ---");
             String sql = """
                 SELECT
                     b.title AS book_title,
@@ -216,7 +220,7 @@ public class UsedBookMarketplaceApp {
                 GROUP BY
                     b.title
                 HAVING
-                    available_stock_count >= 2;
+                    available_stock_count >= 1;
             """;
             pstmt = conn.prepareStatement(sql);
             rs = pstmt.executeQuery();
@@ -227,12 +231,12 @@ public class UsedBookMarketplaceApp {
         }
     }
 
-    // 평균 가격보다 비싼 판매중 도서 (SUBQUERY)
+    // 평균 가격보다 비싼 판매중인 도서 (SUBQUERY)
     private static void displayExpensiveStock(Connection conn) throws SQLException {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            System.out.println("\n--- 평균 가격보다 비싼 판매중 도서 ---");
+            System.out.println("\n--- 평균 가격보다 비싼 판매중인 도서 ---");
             String sql = """
                 SELECT
                     ub.used_book_id,
@@ -259,8 +263,8 @@ public class UsedBookMarketplaceApp {
     private static void updateBookPrice(Connection conn) throws SQLException {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        PreparedStatement selectAfterPstmt = null; // 할인 후 가격 조회를 위한 pstmt
-        ResultSet selectAfterRs = null; // 할인 후 가격 조회를 위한 rs
+        PreparedStatement selectAfterPstmt = null; 
+        ResultSet selectAfterRs = null; 
         try {
             System.out.println("\n--- 평균 가격 초과 도서 일괄 할인 ---");
 
@@ -284,7 +288,6 @@ public class UsedBookMarketplaceApp {
             if (pstmt != null) { try { pstmt.close(); } catch (SQLException e) { System.err.println("PreparedStatement 닫기 오류: " + e.getMessage()); } pstmt = null; }
 
             // 할인 대상 도서 목록 (할인 전 가격)을 다시 조회하여 출력
-            // 이전에 읽었던 eligibleBookIds를 사용하여 다시 조회
             if (!eligibleBookIds.isEmpty()) {
                 StringBuilder inClause = new StringBuilder();
                 inClause.append("(");
@@ -296,17 +299,14 @@ public class UsedBookMarketplaceApp {
                 }
                 inClause.append(")");
 
-                String selectBeforePrintSql = """
-                    SELECT ub.used_book_id, b.title, ub.price
-                    FROM UsedBook ub
-                    JOIN Book b ON ub.book_id = b.book_id
-                    WHERE ub.used_book_id IN """ + inClause.toString() + """;
-                    """;
+                String selectBeforePrintSql =
+				      "SELECT ub.used_book_id, b.title, ub.price\n"
+				    + "FROM UsedBook ub\n"
+				    + "JOIN Book b ON ub.book_id = b.book_id\n"
+				    + "WHERE ub.used_book_id IN " + inClause + ";";
                 pstmt = conn.prepareStatement(selectBeforePrintSql);
                 rs = pstmt.executeQuery();
                 printResultSet(rs); // 할인 전 가격 목록 출력
-                // rs는 printResultSet 내부에서 닫히므로 여기서는 닫지 않음.
-                // pstmt는 finally에서 닫힘.
             } else {
                 System.out.println("할인 대상 도서가 없습니다.");
                 return; // 할인 대상이 없으면 종료
@@ -358,14 +358,15 @@ public class UsedBookMarketplaceApp {
                 }
                 inClauseAfter.append(")");
 
-                String selectAfterDiscountSql = """
-                    SELECT ub.used_book_id, b.title, ub.price
-                    FROM UsedBook ub
-                    JOIN Book b ON ub.book_id = b.book_id
-                    WHERE ub.used_book_id IN """ + inClauseAfter.toString() + """;
-                    """;
-                selectAfterPstmt = conn.prepareStatement(selectAfterDiscountSql); // 새로운 pstmt
-                selectAfterRs = selectAfterPstmt.executeQuery(); // 새로운 rs
+				String selectAfterDiscountSql =
+				      "SELECT ub.used_book_id, b.title, ub.price\n"
+				    + "FROM UsedBook ub\n"
+				    + "JOIN Book b ON ub.book_id = b.book_id\n"
+				    + "WHERE ub.used_book_id IN " 
+				    + inClauseAfter 
+				    + ";";
+                selectAfterPstmt = conn.prepareStatement(selectAfterDiscountSql); 
+                selectAfterRs = selectAfterPstmt.executeQuery(); 
                 printResultSet(selectAfterRs); // 할인 후 가격 목록 출력
             }
 
@@ -378,52 +379,54 @@ public class UsedBookMarketplaceApp {
         }
     }
 
-    // 작가별 판매 및 재고 종합 분석 (판매 완료 기준 랭킹)
+    // 작가별 누적 판매 및 재고 종합 분석 (누적 판매 랭킹)
     private static void displayAuthorSalesAndStockOverview(Connection conn) throws SQLException {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            System.out.println("\n--- 작가별 판매 및 재고 종합 분석 (판매 완료 기준 랭킹) ---");
+            System.out.println("\n--- 작가별 누적 판매 및 재고 종합 분석 (누적 판매 랭킹) ---");
             String sql = """
                 SELECT
-                    AuthorSales.author_name,
-                    AuthorSales.total_sales_count,
-                    AuthorSales.total_sales_amount, -- 총 판매 금액 합계 추가
-                    COALESCE(AuthorStock.total_current_stock_amount, 0) AS total_current_stock_amount,
-                    COALESCE(AuthorStock.current_stock_count, 0) AS current_stock_count,
-                    RANK() OVER (ORDER BY AuthorSales.total_sales_count DESC) AS sales_rank
-                FROM
-                    ( -- 작가별 총 판매 건수 및 총 판매 금액 합계
-                        SELECT
-                            b.author AS author_name,
-                            COUNT(p.purchase_id) AS total_sales_count,
-                            SUM(p.final_price) AS total_sales_amount -- 총 판매 금액 합계
-                        FROM
-                            Purchase p
-                        JOIN
-                            UsedBook ub ON p.used_book_id = ub.used_book_id
-                        JOIN
-                            Book b ON ub.book_id = b.book_id
-                        GROUP BY
-                            b.author
-                    ) AS AuthorSales
-                LEFT JOIN
-                    ( -- 작가별 현재 판매중인 재고 총액 및 개수
-                        SELECT
-                            b.author AS author_name,
-                            SUM(ub.price) AS total_current_stock_amount,
-                            COUNT(ub.used_book_id) AS current_stock_count
-                        FROM
-                            UsedBook ub
-                        JOIN
-                            Book b ON ub.book_id = b.book_id
-                        WHERE
-                            ub.status = '판매중'
-                        GROUP BY
-                            b.author
-                    ) AS AuthorStock ON AuthorSales.author_name = AuthorStock.author_name
-                ORDER BY
-                    AuthorSales.total_sales_count DESC;
+				    b_distinct_author.author AS author_name, -- Book 테이블에 있는 모든 작가
+				    COALESCE(AuthorSales.total_sales_count, 0) AS total_sales_count, -- 총 판매 건수 (없으면 0)
+				    COALESCE(AuthorSales.total_sales_amount, 0) AS total_sales_amount, -- 총 판매 금액 합계 (없으면 0)
+				    COALESCE(AuthorStock.total_current_stock_amount, 0) AS total_current_stock_amount, -- 현재 판매중인 재고 총액 (없으면 0)
+				    COALESCE(AuthorStock.current_stock_count, 0) AS current_stock_count, -- 현재 판매중인 재고 개수 (없으면 0)
+				    RANK() OVER (ORDER BY COALESCE(AuthorSales.total_sales_count, 0) DESC) AS sales_rank -- 판매 건수 기준 랭킹
+				FROM
+				    (SELECT DISTINCT author FROM Book) AS b_distinct_author -- Book 테이블에 존재하는 모든 고유한 작가 목록
+				LEFT JOIN
+				    ( -- 작가별 총 판매 건수 및 총 판매 금액 합계
+				        SELECT
+				            b.author AS author_name,
+				            COUNT(p.purchase_id) AS total_sales_count,
+				            SUM(p.final_price) AS total_sales_amount
+				        FROM
+				            Purchase p
+				        JOIN
+				            UsedBook ub ON p.used_book_id = ub.used_book_id
+				        JOIN
+				            Book b ON ub.book_id = b.book_id
+				        GROUP BY
+				            b.author
+				    ) AS AuthorSales ON b_distinct_author.author = AuthorSales.author_name
+				LEFT JOIN
+				    ( -- 작가별 현재 판매중인 재고 총액 및 개수
+				        SELECT
+				            b.author AS author_name,
+				            SUM(ub.price) AS total_current_stock_amount,
+				            COUNT(ub.used_book_id) AS current_stock_count
+				        FROM
+				            UsedBook ub
+				        JOIN
+				            Book b ON ub.book_id = b.book_id
+				        WHERE
+				            ub.status = '판매중'
+				        GROUP BY
+				            b.author
+				    ) AS AuthorStock ON b_distinct_author.author = AuthorStock.author_name
+				ORDER BY
+				    total_sales_count DESC;
             """;
             pstmt = conn.prepareStatement(sql);
             rs = pstmt.executeQuery();
@@ -434,12 +437,12 @@ public class UsedBookMarketplaceApp {
         }
     }
 
-    // 출판사별/출판년도별 판매중 재고 PIVOT 분석 (OLAP: CASE 구문)
+    // 출판사별/출판년도별 누적 판매 분석
     private static void displayPublisherPublishedYearPivot(Connection conn) throws SQLException {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            System.out.println("\n--- 출판사별/출판년도별 판매중 재고 PIVOT 분석 (OLAP: CASE 구문) ---");
+            System.out.println("\n--- 출판사별/출판년도별 누적 판매 분석 ---");
             String pivotSql = """
                 SELECT
                     b.publisher,
@@ -449,6 +452,10 @@ public class UsedBookMarketplaceApp {
                     SUM(CASE WHEN b.published_date = 2021 THEN ub.price ELSE 0 END) AS Year_2021_Amount,
                     SUM(CASE WHEN b.published_date = 2022 THEN 1 ELSE 0 END) AS Year_2022_Count,
                     SUM(CASE WHEN b.published_date = 2022 THEN ub.price ELSE 0 END) AS Year_2022_Amount,
+                    SUM(CASE WHEN b.published_date = 2023 THEN 1 ELSE 0 END) AS Year_2023_Count,
+                    SUM(CASE WHEN b.published_date = 2023 THEN ub.price ELSE 0 END) AS Year_2023_Amount,
+                    SUM(CASE WHEN b.published_date = 2024 THEN 1 ELSE 0 END) AS Year_2024_Count,
+                    SUM(CASE WHEN b.published_date = 2024 THEN ub.price ELSE 0 END) AS Year_2024_Amount,
                     COUNT(ub.used_book_id) AS Total_Count,
                     SUM(ub.price) AS Total_Amount
                 FROM
@@ -456,7 +463,7 @@ public class UsedBookMarketplaceApp {
                 JOIN
                     Book b ON ub.book_id = b.book_id
                 WHERE
-                    ub.status = '판매중'
+                    ub.status = '판매완료'
                 GROUP BY
                     b.publisher
                 ORDER BY
@@ -470,11 +477,120 @@ public class UsedBookMarketplaceApp {
             if (pstmt != null) try { pstmt.close(); } catch (SQLException e) { System.err.println("PreparedStatement 닫기 오류: " + e.getMessage()); }
         }
     }
+    
+    // 도서 검색 (작가/제목)
+    private static void searchBooksByAuthorOrTitle(Connection conn) throws SQLException {
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            System.out.println("\n--- 도서 검색 (작가/제목) ---");
+            System.out.print("검색할 키워드를 입력하세요: ");
+            String keyword = scanner.nextLine();
+            String searchKeyword = "%" + keyword + "%"; // LIKE 연산자를 위한 와일드카드
+
+            System.out.println("검색 기준을 선택하세요:");
+            System.out.println("  (1) 제목만 검색");
+            System.out.println("  (2) 작가만 검색");
+            System.out.println("  (3) 제목 또는 작가 검색");
+            System.out.print("선택: ");
+            int searchType = getUserChoice();
+
+            String sql = "";
+            switch (searchType) {
+                case 1: // 제목만 검색
+                    sql = """
+                        SELECT
+                            ub.used_book_id,
+                            b.title AS book_title,
+                            b.author,
+                            b.publisher,
+                            ub.price,
+                            ub.status,
+                            ub.registered_date
+                        FROM
+                            UsedBook ub
+                        JOIN
+                            Book b ON ub.book_id = b.book_id
+                        WHERE
+                            b.title LIKE ? AND ub.status = '판매중';
+                        """;
+                    break;
+                case 2: // 작가만 검색
+                    sql = """
+                        SELECT
+                            ub.used_book_id,
+                            b.title AS book_title,
+                            b.author,
+                            b.publisher,
+                            ub.price,
+                            ub.status,
+                            ub.registered_date
+                        FROM
+                            UsedBook ub
+                        JOIN
+                            Book b ON ub.book_id = b.book_id
+                        WHERE
+                            b.author LIKE ? AND ub.status = '판매중';
+                        """;
+                    break;
+                case 3: // 제목 또는 작가 검색
+                    sql = """
+                        SELECT
+                            ub.used_book_id,
+                            b.title AS book_title,
+                            b.author,
+                            b.publisher,
+                            ub.price,
+                            ub.status,
+                            ub.registered_date
+                        FROM
+                            UsedBook ub
+                        JOIN
+                            Book b ON ub.book_id = b.book_id
+                        WHERE
+                            (b.title LIKE ? OR b.author LIKE ?) AND ub.status = '판매중';
+                        """;
+                    break;
+                default:
+                    System.out.println("잘못된 검색 기준입니다. 전체 검색으로 진행합니다.");
+                    sql = """
+                        SELECT
+                            ub.used_book_id,
+                            b.title AS book_title,
+                            b.author,
+                            b.publisher,
+                            ub.price,
+                            ub.status,
+                            ub.registered_date
+                        FROM
+                            UsedBook ub
+                        JOIN
+                            Book b ON ub.book_id = b.book_id
+                        WHERE
+                            (b.title LIKE ? OR b.author LIKE ?) AND ub.status = '판매중';
+                        """;
+                    searchType = 3; // 기본값으로 설정
+                    break;
+            }
+
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, searchKeyword);
+            if (searchType == 3) {
+                pstmt.setString(2, searchKeyword); // OR 조건일 경우 두 번째 파라미터 바인딩
+            }
+            rs = pstmt.executeQuery();
+            printResultSet(rs);
+
+        } finally {
+            if (rs != null) try { rs.close(); } catch (SQLException e) { System.err.println("ResultSet 닫기 오류: " + e.getMessage()); }
+            if (pstmt != null) try { pstmt.close(); } catch (SQLException e) { System.err.println("PreparedStatement 닫기 오류: " + e.getMessage()); }
+        }
+    }
 
     // ResultSet을 콘솔에 깔끔하게 출력하는 헬퍼 메소드
     private static void printResultSet(ResultSet rs) throws SQLException {
         // ResultSet이 비어있는지 확인
-        if (!rs.next()) { // 첫 행으로 이동 시도, 데이터가 없으면 false 반환
+        if (!rs.next()) { 
             System.out.println("조회된 결과가 없습니다.");
             return;
         }
@@ -499,8 +615,8 @@ public class UsedBookMarketplaceApp {
         int[] columnWidths = new int[columnCount + 1];
 
         // 컬럼별 너비 설정 상수 (조정 가능)
-        final int MIN_COL_WIDTH = 15; // 최소 컬럼 너비
-        final int MAX_COL_WIDTH_TITLE = 40; // 'book_title'의 최대 너비
+        final int MIN_COL_WIDTH = 25; // 최소 컬럼 너비
+        final int MAX_COL_WIDTH_TITLE = 30; // 'book_title'의 최대 너비
         final int MAX_COL_WIDTH_GENERAL = 25; // 일반 컬럼의 최대 너비
 
 
