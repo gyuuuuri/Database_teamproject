@@ -1,5 +1,5 @@
--- 데이터베이스 스키마 V6b: Orders 테이블 분리 버전
--- 이 스키마는 Python 스크립트 'insert_v6b_orders_table_schema.sql'로 생성된 데이터와 호환됩니다.
+-- 데이터베이스 스키마 b: Orders 테이블 분리 버전
+-- 이 스키마는 'isert_b.sql'로 생성된 데이터와 호환됩니다.
 
 -- 외래 키 제약조건을 잠시 비활성화 (데이터 로드 시 유용)
 -- SET FOREIGN_KEY_CHECKS = 0;
