@@ -36,41 +36,50 @@ create table Users (
     primary key (user_id)
 );
 
--- 4. Purchase 테이블
-create table Purchase (
-    purchase_id    int             not null AUTO_INCREMENT,
-    used_book_id   int             not null,
-    buyer_id       int             not null,
-    purchased_date DATETIME        not null DEFAULT CURRENT_TIMESTAMP,
-    final_price    int   not null,
-    reward_points  int      AS (FLOOR(final_price * 0.01)) STORED,
-    primary key (purchase_id, used_book_id),
-    foreign key (used_book_id) references UsedBook (used_book_id)
-    on update cascade
-    on delete restrict,
-    foreign key (buyer_id) references Users (user_id)
-    on update cascade
-    on delete restrict
+-- 4. PurchaseOrder 테이블
+CREATE TABLE PurchaseOrder (
+    purchase_id       INT           NOT NULL AUTO_INCREMENT,
+    buyer_id       INT           NOT NULL,
+    purchased_date DATETIME      NOT NULL,
+    -- (필요 시) 여기서 바로 계산된 total_amount 컬럼도 둬도 되고, 
+    -- 필요 시 운송료/shipping_status 등을 헤더에 둡니다.
+    PRIMARY KEY (order_id),
+    FOREIGN KEY (buyer_id) REFERENCES Users(user_id)
+      ON UPDATE CASCADE
+      ON DELETE RESTRICT
 );
+CREATE INDEX idx_order_buyer
+  ON PurchaseOrder (buyer_id);
 
-create index idx_purchase_usedbook
-  on Purchase (used_book_id);
+-- 5. PurchaseItem 테이블
+CREATE TABLE PurchaseItem (
+    purchase_id       INT           NOT NULL,
+    used_book_id   INT           NOT NULL,
+    final_price    INT           NOT NULL,
+    reward_points  INT GENERATED ALWAYS AS (FLOOR(final_price * 0.01)) STORED,
+    PRIMARY KEY (order_id, used_book_id),
+    FOREIGN KEY (order_id)     REFERENCES PurchaseOrder(order_id)
+      ON UPDATE CASCADE
+      ON DELETE RESTRICT,
+    FOREIGN KEY (used_book_id) REFERENCES UsedBook(used_book_id)
+      ON UPDATE CASCADE
+      ON DELETE RESTRICT
+);
+CREATE INDEX idx_item_usedbook
+  ON PurchaseItem (used_book_id);
 
-create index idx_purchase_buyer
-  on Purchase (buyer_id);
 
 
--- 5. Shipping 테이블
+-- 6. Shipping 테이블
 create table Shipping (
     shipping_id     int             not null AUTO_INCREMENT,
     purchase_id     int             not null,
-    used_book_id   int             not null,
     shipping_address varchar(255)   not null,
     shipped_at      DATETIME,
     delivered_at    DATETIME,
     shipping_status ENUM('배송준비중','배송중','배송완료') not null DEFAULT '배송준비중',
-    primary key (shipping_id,purchase_id,used_book_id),
-    foreign key (purchase_id,used_book_id) references Purchase (purchase_id,used_book_id)
+    primary key (shipping_id),
+    foreign key (purchase_id) references PurchaseOrder (purchase_id)
     on update cascade
     on delete restrict
 );
