@@ -25,41 +25,52 @@ create table UsedBook (
 create index idx_usedbook_bookid
   ON UsedBook (book_id);
 
--- 3. User 테이블
-create table User (
+-- 3. Users 테이블
+create table Users (
     user_id     int             not null,
     username    varchar(50)     not null,
     email       varchar(100)    not null,
-    join_date   DATE            not null DEFAULT CURRENT_DATE,
+    join_date   DATETIME            not null DEFAULT CURRENT_TIMESTAMP,
     address     varchar(255),
+    points       int unsigned    not null DEFAULT 0,
     primary key (user_id)
 );
 
--- 4. Purchase 테이블
-create table Purchase (
-    purchase_id    int             not null AUTO_INCREMENT,
-    used_book_id   int             not null,
-    buyer_id       int             not null,
-    purchased_date DATETIME        not null DEFAULT CURRENT_TIMESTAMP,
-    final_price    int   not null,
-    reward_points  int      AS (FLOOR(final_price * 0.01)) STORED,
-    primary key (purchase_id),
-    foreign key (used_book_id) references UsedBook (used_book_id)
-    on update cascade
-    on delete restrict,
-    foreign key (buyer_id) references User (user_id)
-    on update cascade
-    on delete restrict
+-- 4. PurchaseOrder 테이블
+CREATE TABLE PurchaseOrder (
+    purchase_id       INT           NOT NULL AUTO_INCREMENT,
+    buyer_id       INT           NOT NULL,
+    purchased_date DATETIME      NOT NULL,
+    -- (필요 시) 여기서 바로 계산된 total_amount 컬럼도 둬도 되고, 
+    -- 필요 시 운송료/shipping_status 등을 헤더에 둡니다.
+    PRIMARY KEY (purchase_id),
+    FOREIGN KEY (buyer_id) REFERENCES Users(user_id)
+      ON UPDATE CASCADE
+      ON DELETE RESTRICT
 );
+CREATE INDEX idx_order_buyer
+  ON PurchaseOrder (buyer_id);
 
-create index idx_purchase_usedbook
-  on Purchase (used_book_id);
+-- 5. PurchaseItem 테이블
+CREATE TABLE PurchaseItem (
+    purchase_id       INT           NOT NULL,
+    used_book_id   INT           NOT NULL,
+    final_price    INT           NOT NULL,
+    reward_points  INT GENERATED ALWAYS AS (FLOOR(final_price * 0.01)) STORED,
+    PRIMARY KEY (purchase_id, used_book_id),
+    FOREIGN KEY (purchase_id)     REFERENCES PurchaseOrder(purchase_id)
+      ON UPDATE CASCADE
+      ON DELETE RESTRICT,
+    FOREIGN KEY (used_book_id) REFERENCES UsedBook(used_book_id)
+      ON UPDATE CASCADE
+      ON DELETE RESTRICT
+);
+CREATE INDEX idx_item_usedbook
+  ON PurchaseItem (used_book_id);
 
-create index idx_purchase_buyer
-  on Purchase (buyer_id);
 
 
--- 5. Shipping 테이블
+-- 6. Shipping 테이블
 create table Shipping (
     shipping_id     int             not null AUTO_INCREMENT,
     purchase_id     int             not null,
@@ -68,7 +79,7 @@ create table Shipping (
     delivered_at    DATETIME,
     shipping_status ENUM('배송준비중','배송중','배송완료') not null DEFAULT '배송준비중',
     primary key (shipping_id),
-    foreign key (purchase_id) references Purchase (purchase_id)
+    foreign key (purchase_id) references PurchaseOrder (purchase_id)
     on update cascade
     on delete restrict
 );
@@ -80,14 +91,15 @@ create index idx_shipping_purchase
 -- 뷰 정의: 사용자별 구매 내역
 create view user_purchase_history as
     select
-        p.purchase_id,
-        p.buyer_id,
+        po.purchase_id,
+        po.buyer_id,
         u.username,
-        p.purchased_date,
+        po.purchased_date,
         ub.used_book_id,
         b.title       as book_title,
-        p.final_price
-    from Purchase p
-    join User u       on p.buyer_id     = u.user_id
-    join UsedBook ub  on p.used_book_id = ub.used_book_id
-    join Book b       on ub.book_id     = b.book_id;
+        pi.final_price
+  from purchaseitem pi
+        join purchaseorder po on pi.purchase_id=po.purchase_id
+        join users u on u.user_id=po.buyer_id
+        join usedbook ub on pi.used_book_id=ub.used_book_id
+        join book b on b.book_id=ub.book_id;
