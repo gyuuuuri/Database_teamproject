@@ -20,7 +20,13 @@ public class ShippingCheck {
 		PreparedStatement pstmt=null;
 		ResultSet myResSet=null;
 		
-		String select="select s.purchase_id, po.buyer_id, s.shipping_status from Shipping s join PurchaseOrder po on s.purchase_id=po.purchase_id where shipping_status in (?,?) order by shipping_status, purchase_id ";
+		String select="""
+				select s.purchase_id, po.buyer_id, s.shipping_status 
+				from Shipping s 
+				join PurchaseOrder po on s.purchase_id=po.purchase_id 
+				where shipping_status in (?,?) 
+				order by shipping_status, purchase_id 
+				""";
 		
 		String status1="배송준비중";
 		String status2="배송중";
@@ -35,10 +41,7 @@ public class ShippingCheck {
 			pstmt.setString(2, status2);
 			myResSet=pstmt.executeQuery();
 			System.out.println("\n-- 배송 완료되지 않은 주문 목록 --");
-			System.out.println(String.format("%150s", "").replace(' ', '='));
 			PrintResultSet.printResultSet(myResSet);
-			System.out.println(String.format("%150s", "").replace(' ', '='));
-		
 			
 			
 		} catch (SQLException e) {

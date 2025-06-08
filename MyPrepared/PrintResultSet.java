@@ -31,7 +31,14 @@ public class PrintResultSet {
             String[] rowData = new String[columnCount + 1]; // 1-based index
             for (int i = 1; i <= columnCount; i++) {
                 Object value = rs.getObject(i);
-                rowData[i] = (value != null) ? value.toString() : "NULL";
+                if (value instanceof Integer) {
+                    rowData[i] = Integer.toString((Integer) value);
+                } else if (value instanceof java.sql.Date) {
+                    // 연도만 추출
+                    rowData[i] = String.valueOf(((java.sql.Date) value).toLocalDate().getYear());
+                } else {
+                    rowData[i] = (value != null) ? value.toString() : "NULL";
+                }
             }
             rows.add(rowData);
         } while (rs.next()); // 나머지 행 읽기

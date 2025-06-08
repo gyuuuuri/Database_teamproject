@@ -123,7 +123,7 @@ public class Menu {
     public static void rewardMenu()throws SQLException {
         while (true) { 
             System.out.println("\n--- 포인트 적립 메뉴 ---");
-            System.out.println("1. 리워드 포인트 누적");
+            System.out.println("1. 리워드 계산 및 최우수 고객 관리");
             System.out.println("2. 누적 포인트별 등급 출력");
             System.out.println("3. 기간 내 획득한 리워드 포인트 조회");
             System.out.println("0. 이전 메뉴로 돌아가기");

@@ -37,7 +37,7 @@ public class Inventory {
                 GROUP BY
                     b.book_id, b.title, b.author, b.publisher
                 ORDER BY
-                    book_title;
+                    book_title
             """;
             pstmt = myConn.prepareStatement(sql);
             rs = pstmt.executeQuery();
@@ -93,7 +93,7 @@ public class Inventory {
                 GROUP BY
                     b.title
                 HAVING
-                    available_stock_count >= 2;
+                    available_stock_count >= 2
             """;
             pstmt = myConn.prepareStatement(sql);
             rs = pstmt.executeQuery();
@@ -176,7 +176,7 @@ public class Inventory {
                             b.author
                     ) AS AuthorStock ON AuthorSales.author_name = AuthorStock.author_name
                 ORDER BY
-                    AuthorSales.total_sales_count DESC;
+                    AuthorSales.total_sales_count DESC
             """;
             pstmt = myConn.prepareStatement(sql);
             rs = pstmt.executeQuery();

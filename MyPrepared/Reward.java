@@ -27,7 +27,16 @@ public class Reward {
         try {
         	MyConn = DriverManager.getConnection(DBConfig.url, DBConfig.userID, DBConfig.userPW);
 
-        	updateSql = "update Users u join (select po.buyer_id AS user_id, SUM(pi.reward_points) AS total_pts from PurchaseOrder po join PurchaseItem pi ON po.purchase_id = pi.purchase_id group by po.buyer_id) t ON u.user_id = t.user_id set u.points = t.total_pts";
+        	updateSql = """
+        			update Users u 
+        			join (select po.buyer_id AS user_id, 
+        			      SUM(pi.reward_points) AS total_pts 
+        			      from PurchaseOrder po 
+        			      join PurchaseItem pi ON po.purchase_id = pi.purchase_id 
+        			      group by po.buyer_id) t 
+        			ON u.user_id = t.user_id 
+        			set u.points = t.total_pts
+        			""";
             pstmt = MyConn.prepareStatement(updateSql);
             
             int updatedRows = pstmt.executeUpdate();
@@ -100,7 +109,11 @@ public class Reward {
 	        try {
 	        	MyConn = DriverManager.getConnection(DBConfig.url, DBConfig.userID, DBConfig.userPW);
 	        	
-	        	selectSql="select user_id, username, points from users order by points desc";
+	        	selectSql="""
+	        			select user_id, username, points 
+	        			from users 
+	        			order by points desc
+	        			""";
 				
 	        	pstmt=MyConn.prepareStatement(selectSql);
 	        	myResSet=pstmt.executeQuery();
@@ -165,7 +178,16 @@ public class Reward {
 		    
 		    try {
 		    	MyConn = DriverManager.getConnection(DBConfig.url, DBConfig.userID, DBConfig.userPW);
-	        	selectSql = "select u.user_id, u.username, ROUND(SUM(pi.reward_points), 0) AS earned_points from Users u join PurchaseOrder po ON u.user_id = po.buyer_id join PurchaseItem pi ON po.purchase_id = pi.purchase_id where po.purchased_date between ? and ? group by user_id, u.username order by earned_points desc";
+	        	selectSql = """
+	        			select u.user_id, u.username, 
+	        			ROUND(SUM(pi.reward_points), 0) AS earned_points 
+	        			from Users u 
+	        			join PurchaseOrder po ON u.user_id = po.buyer_id 
+	        			join PurchaseItem pi ON po.purchase_id = pi.purchase_id 
+	        			where po.purchased_date between ? and ? 
+	        			group by user_id, u.username 
+	        			order by earned_points desc
+	        			""";
 	                 
 	        	pstmt = MyConn.prepareStatement(selectSql);
 	            pstmt.setTimestamp(1, start);

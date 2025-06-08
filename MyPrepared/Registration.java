@@ -18,8 +18,14 @@ public class Registration {
 		PreparedStatement pstmt=null;
 		ResultSet myResSet=null;
 		
-		String insert="insert into UsedBook (book_id, price) values (?,?)";
-		String select="select used_book_id, book_id, from UsedBook where registered_date=date(now())";
+		String insert="""
+				insert into UsedBook (book_id, price) values (?,?)
+				""";
+		String select="""
+				select u.used_book_id, u.book_id, b.title, b.author
+				from UsedBook u join Book b on u.book_id=b.book_id
+				where u.registered_date=date(now())
+				""";
 		
 		
 		try {

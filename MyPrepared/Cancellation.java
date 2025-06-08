@@ -21,12 +21,40 @@ public class Cancellation {
 		PreparedStatement pstmt=null;
 		ResultSet myResSet=null;
 		
-		String select0="select count(*) from Shipping where purchase_id = ?";
-		String select1="select used_book_id, reward_points from PurchaseItem where purchase_id = ?";
-		String select2="select buyer_id from PurchaseOrder where purchase_id = ?";
-		String update_status="update UsedBook set status=? where used_book_id=?";
-		String update_points="update Users set points=points-? where user_id=?";
-		String delete="delete from Purchase where purchase_id=?";
+		String select0="""
+				select count(*) 
+				from Shipping 
+				where purchase_id = ?
+				""";
+		
+		String select1="""
+				select used_book_id, reward_points 
+				from PurchaseItem 
+				where purchase_id = ?
+				""";
+		
+		String select2="""
+				select buyer_id 
+				from PurchaseOrder 
+				where purchase_id = ?
+				""";
+		
+		String update_status="""
+				update UsedBook 
+				set status=? 
+				where used_book_id=?
+				""";
+		
+		String update_points="""
+				update Users 
+				set points=points-? 
+				where user_id=?
+				""";
+		
+		String delete="""
+				delete from Purchase 
+				where purchase_id=?
+				""";
 		
 		int buyer_id=0;
 		ArrayList<Integer> used_book_id = new ArrayList<>();
